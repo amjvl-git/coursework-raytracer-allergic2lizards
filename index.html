@@ -103,7 +103,7 @@ class Ray
 
     // Calculate and return the point in space (a Vec3) for this ray for the given value of t
     pointAt(t) {
-        return new Vec3(this.origin + (this.direction * t))
+        return new Vec3(this.origin + (this.direction.scale(t)))
     }
 }
 
@@ -125,7 +125,9 @@ class RayCastResult
 
 // Calculate the intersection point and normal when a ray hits a sphere. Returns a RayCastResult.
     function hit(ray, t, sphereIndex) {
-        return new RayCastResult(
+        let intersectionPoint = ray.pointAt(t)
+        let intersectionNormal = (intersectionPoint.minus(spheres[sphereIndex].centre)).magnitude()
+        return new RayCastResult(intersectionPoint, intersectionNormal, t, sphereIndex)
     }
 
 // Return a RayCastResult when a ray misses everything in the scene
