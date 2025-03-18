@@ -27,22 +27,32 @@ class Vec3
     }
 
     // Subtract other vector from this one and return the result
-    minus(other){}
+    minus(other) {
+        return new Vec3(this.x - other.x, this.y - other.y, this.z - other.z)
+    }
 
     // Multiply other vector by this one and return the result
-    multiply(other){}
+    multiply(other) {
+        return new Vec3(this.x * other.x, this.y * other.y, this.z * other.z)
+    }
 
     // Scale this vector by the number scalar and return the result
-    scale(scalar){}
+    scale(scalar) {
+        return new Vec3(this.x * scalar, this.y * scalar, this.z * scalar)
+    }
     
     // Calculate the dot product of this vector with the other and return the result
-    dot(other) {}
+    dot(other) {
+        return new Vec3((this.x * other.x) + (this.y * other.y) + (this.z * other.z))
+    }
 
     // Calculate and return the magnitude of this vector
     magnitude() {}
     
     // Calculate and return the magnitude of this vector without the square root
-    magnitudeSquared() {}
+    magnitudeSquared() {
+        return new Vec3(this.x ** 2, this.y ** 2, this.z ** 2)
+    }
 
     // Return a normalised version of this vector
     normalised() {}
@@ -75,7 +85,9 @@ class Ray
     }
 
     // Calculate and return the point in space (a Vec3) for this ray for the given value of t
-    pointAt(t) {}
+    pointAt(t) {
+        return new Vec3(this.origin + (this.direction * t))
+    }
 }
 
 // The result of casting a ray into our scene
@@ -112,7 +124,10 @@ function traceRay(ray)
 // Calculate and return the background colour based on the ray
 function backgroundColour(ray)
 {
-        return new Vec3(0.3,0.5,0.9) // Blue
+    let white = new Vec3(1, 1, 1)
+    let blue = new Vec3(0.3, 0.5, 0.9)
+    t = 0.5 * (ray.direction.y + 1.0)
+    return white.scale(1 - t).add(blue.scale(t))
 }
 
 // Returns the colour the ray should have as a Vec3 with RGB values in [0,1]
@@ -140,18 +155,32 @@ const spheres = new Array(
 
 
 // Main code
-let imageWidth = document.getElementById("canvas").width
-let imageHeight = document.getElementById("canvas").height
-let aspectRatio = document.getElementById("canvas").height / document.getElementById("canvas").width
+    let imageWidth = document.getElementById("canvas").width
+    let imageHeight = document.getElementById("canvas").height
+    let aspectRatio = imageHeight / imageWidth
 
-let colour = new Vec3(0,0,0)
+    let viewportWidth = 2
+    let viewportHeight = viewportWidth * aspectRatio
+    let focalLength = 1.0
 
-for (let i = 0; i < imageWidth; i++)
-{
-    for (let j = 0; j <= imageHeight; j++)
-    {
-        setPixel(i,j,colour)
-    }
+    let camPosition = new Vec3(0, 0, 0)
+    let horizontal = new Vec3(viewportWidth, 0, 0)
+    let vertical = new Vec3(0, viewportHeight, 0)
+    let lowerLeftCorner = camPosition.minus(horizontal.scale(0.5)).minus(vertical.scale(0.5)).minus(new Vec3(0, 0, focalLength))
+
+
+
+let colour = new Vec3(0, 0, 0)
+
+    for (let i = 0; i < imageWidth; i++) {
+        for (let j = 0; j <= imageHeight; j++) {
+            let u = i / (imageWidth - 1)
+            let v = j / (imageHeight - 1)
+
+            let ray = new Ray(camPosition, lowerLeftCorner.add(horizontal.scale(u)).add(vertical.scale(v)).minus(camPosition))
+            colour = rayColour(ray).scale(255)
+            setPixel(i, j, colour)
+        }
 }
 
 </script>
